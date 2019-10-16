@@ -1,11 +1,14 @@
-`# Demo Web Services
+# Demo Web Services
 
 ## Objective
 
 Demonstrate how the same functionality can be implemented by server-server and server-client models with different implementations/protocols.
 
+## Implementations
 
-
+- [ ] RESTful/swagger w/ go
+- [ ] Graphql w/ go
+- [ ] GRPC w/ go
 
 
 ## Criteria
