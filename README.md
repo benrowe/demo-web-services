@@ -10,6 +10,30 @@ Demonstrate how the same functionality can be implemented by server-server and s
 - [ ] Graphql w/ go
 - [ ] GRPC w/ go
 
+### Problem
+
+Using the sample database, solve the problem
+
+- Employee
+  - List
+  - Read
+    - Current Salary
+    - All salaries
+    - Current departments
+    - All departments
+    - Current Title
+  - Create
+  - Update
+  - Fire
+  - Associate to department
+- Departments
+  - List
+  - Read
+  - Create
+  - Update
+  - Archive
+  
+
 
 ## Criteria
 
