@@ -1,0 +1,9 @@
+
+type Employee {
+
+}
+
+type Query {
+    employee(id: ID!): Employee
+    employees: [Employee!]!
+}
