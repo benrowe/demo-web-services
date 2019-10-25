@@ -25,3 +25,10 @@ help:
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
+## Run the demos
+run:
+	echo "Starting common dependencies"
+	docker-compose up
+	cd src/go-swagger && make run
+	cd src/go-gqlgen && make run
+
