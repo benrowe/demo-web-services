@@ -47,3 +47,10 @@ Using the sample database, solve the problem
 ## Setup
 
 `docker-compose up`
+
+## TODO
+
+- [x] start all implementations via docker-compose + common dependencies
+- [ ] run migrations automatically on `up`
+- [x] Get all impementations responding to http requests
+- [ ] scaffold basic employees list implementation
