@@ -1,5 +1,33 @@
 version: "3"
 services:
+  go-gqlgen:
+    build:
+      context: ./src/go-gqlgen/docker
+    restart: always
+    working_dir: /go/src/benrowe/demo-web-services/src/go-gqlgen
+    volumes:
+      - go_src:/go/src:cached
+      - ./src:/go/src/benrowe/demo-web-services/src/:cached
+    ports:
+      - 801:80
+  go-grpc:
+    image: cosmtrek/air
+    restart: always
+    working_dir: /go/src/benrowe/demo-web-services/src/go-grpc
+    volumes:
+      - go_src:/go/src:cached
+      - ./src:/go/src/benrowe/demo-web-services/src/:cached
+    ports:
+      - 802:80
+  go-swagger:
+    image: cosmtrek/air
+    restart: always
+    working_dir: /go/src/benrowe/demo-web-services/src/go-swagger
+    volumes:
+      - go_src:/go/src:cached
+      - ./src:/go/src/benrowe/demo-web-services/src/:cached
+    ports:
+      - 803:80
   database:
     image: mariadb:latest
     restart: always
@@ -15,4 +43,6 @@ services:
     restart: always
     ports:
       - 8080:8080
-      
+volumes:
+  go_src:
+
