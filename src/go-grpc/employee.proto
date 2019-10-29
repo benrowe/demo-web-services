@@ -1,0 +1,27 @@
+syntax="proto3";
+
+package something;
+option go_package = "something";
+
+message ListEmployeesRequest {}
+
+message ListEmployeeResponse {
+    repeated Employee employee = 1;
+}
+
+message GetEmployeeRequest {
+    string id = 1;
+}
+
+message GetEmployeeResponse {
+    Employee employee = 1;
+}
+
+message Employee {
+    string id = 1;
+}
+
+service EmployeeService {
+    rpc ListEmployees(ListEmployeesRequest) returns (ListEmployeeResponse);
+    rpc GetEmployee(GetEmployeeRequest) returns (GetEmployeeResponse);
+}
