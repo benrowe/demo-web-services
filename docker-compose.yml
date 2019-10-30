@@ -1,5 +1,14 @@
 version: "3"
 services:
+  overview:
+    image: cosmtrek/air
+    restart: always
+    working_dir: /go/src/benrowe/demo-web-services/
+    volumes:
+      - go_src:/go/src:cached
+      - ./:/go/src/benrowe/demo-web-services/:cached
+    ports:
+      - 800:80
   go-gqlgen:
     build:
       context: ./src/go-gqlgen/docker
@@ -12,6 +21,7 @@ services:
       - 801:80
     depends_on:
       - database
+      - overview
   go-grpc:
     image: cosmtrek/air
     restart: always
@@ -23,6 +33,7 @@ services:
       - 802:80
     depends_on:
       - database
+      - overview
   go-swagger:
     image: cosmtrek/air
     restart: always
@@ -34,6 +45,7 @@ services:
       - 803:80
     depends_on:
       - database
+      - overview
   database:
     image: mariadb:latest
     restart: always
