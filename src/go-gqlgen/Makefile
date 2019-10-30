@@ -25,17 +25,17 @@ help:
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
-## gqlgen cli
+## GQLGEN cli
 gqlgen:
-	docker run --rm -it -e GOPATH=$(HOME)/go:/go -v $(HOME):$(HOME) -w $(PWD) zerbitx/gqlgen-todos $(ARGS)
+	docker exec -it demo-web-services_go-gqlgen_1 gqlgen $(arguments)
 
 ## Validate the current gql doc
 validate:
-	docker run --rm -it -e GOPATH=$(HOME)/go:/go -v $(HOME):$(HOME) -w $(PWD) zerbitx/gqlgen-todos validate ./swagger.yml
 
-## Scaffold go code through the gqlgen cli
+
+## Scaffold go code through the GQLGEN cli
 generate:
-	docker run --rm -it -e GOPATH=$(HOME)/go:/go -v $(HOME):$(HOME) -w $(PWD) zerbitx/gqlgen-todos generate server -t gen --exclude-main
+	docker exec -it demo-web-services_go-gqlgen_1 gqlgen
 
 ## Run the service
 run:
