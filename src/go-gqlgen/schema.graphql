@@ -1,6 +1,6 @@
 
 type Employee {
-
+    id: ID!
 }
 
 type Query {
