@@ -21,4 +21,8 @@ jobs:
         go get -v -t -d ./...
 
     - name: Build
-      run: go build -v .
+      run: |
+      go build -v src/go-gqlgen
+      go build -v src/go-grpc
+      go build -v src/go-swagger
+
