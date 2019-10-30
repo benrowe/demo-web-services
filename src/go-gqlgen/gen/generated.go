@@ -12,7 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/benrowe/demo-web-services/src/go-gqlgen/models"
+	"github.com/benrowe/demo-web-services/src/go-gqlgen/entities"
 	"github.com/vektah/gqlparser"
 	"github.com/vektah/gqlparser/ast"
 )
@@ -53,8 +53,8 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	Employee(ctx context.Context, id string) (*models.Employee, error)
-	Employees(ctx context.Context) ([]*models.Employee, error)
+	Employee(ctx context.Context, id string) (*entities.Employee, error)
+	Employees(ctx context.Context) ([]*entities.Employee, error)
 }
 
 type executableSchema struct {
@@ -227,7 +227,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Employee_id(ctx context.Context, field graphql.CollectedField, obj *models.Employee) (ret graphql.Marshaler) {
+func (ec *executionContext) _Employee_id(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -299,7 +299,7 @@ func (ec *executionContext) _Query_employee(ctx context.Context, field graphql.C
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*models.Employee)
+	res := resTmp.(*entities.Employee)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalOEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx, field.Selections, res)
@@ -336,7 +336,7 @@ func (ec *executionContext) _Query_employees(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.Employee)
+	res := resTmp.([]*entities.Employee)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx, field.Selections, res)
@@ -1578,7 +1578,7 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 var employeeImplementors = []string{"Employee"}
 
-func (ec *executionContext) _Employee(ctx context.Context, sel ast.SelectionSet, obj *models.Employee) graphql.Marshaler {
+func (ec *executionContext) _Employee(ctx context.Context, sel ast.SelectionSet, obj *entities.Employee) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.RequestContext, sel, employeeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1917,11 +1917,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNEmployee2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v models.Employee) graphql.Marshaler {
+func (ec *executionContext) marshalNEmployee2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v entities.Employee) graphql.Marshaler {
 	return ec._Employee(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v []*models.Employee) graphql.Marshaler {
+func (ec *executionContext) marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v []*entities.Employee) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -1958,7 +1958,7 @@ func (ec *executionContext) marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemo
 	return ret
 }
 
-func (ec *executionContext) marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v *models.Employee) graphql.Marshaler {
+func (ec *executionContext) marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v *entities.Employee) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2245,11 +2245,11 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
 }
 
-func (ec *executionContext) marshalOEmployee2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v models.Employee) graphql.Marshaler {
+func (ec *executionContext) marshalOEmployee2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v entities.Employee) graphql.Marshaler {
 	return ec._Employee(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalOEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v *models.Employee) graphql.Marshaler {
+func (ec *executionContext) marshalOEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v *entities.Employee) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

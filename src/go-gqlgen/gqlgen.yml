@@ -9,8 +9,8 @@ exec:
   package: gen
   filename: gen/generated.go
 model:
-  package: models
-  filename: models/models_gen.go
+  package: entities
+  filename: entities/entities_gen.go
 resolver:
   filename: resolvers/resolver.go
   type: Resolver
