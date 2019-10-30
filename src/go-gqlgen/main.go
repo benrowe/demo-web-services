@@ -3,14 +3,17 @@ package main
 import (
     "github.com/99designs/gqlgen/handler"
     "github.com/gorilla/mux"
+    "github.com/benrowe/demo-web-services/src/go-gqlgen/gen"
+    "github.com/benrowe/demo-web-services/src/go-gqlgen/resolvers"
     "log"
     "net/http"
     "os"
 )
 
-const defaultPort = "80"
+const defaultPort = "8888"
 
 func main() {
+
     port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
@@ -24,6 +27,7 @@ func main() {
 
     r.Use(printRequest)
     r.Handle("/", handler.Playground("test", "/query"))
+    r.Handle("/query", handler.GraphQL(gen.NewExecutableSchema(gen.Config{Resolvers: &resolvers.Resolver{}})))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
@@ -37,3 +41,4 @@ func printRequest(next http.Handler) http.Handler {
         next.ServeHTTP(w, r)
     })
 }
+
