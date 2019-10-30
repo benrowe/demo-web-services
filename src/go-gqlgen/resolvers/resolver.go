@@ -2,14 +2,19 @@ package resolvers
 
 import (
 	"context"
+    "github.com/benrowe/demo-web-services/src/models"
+    "log"
 
     "github.com/benrowe/demo-web-services/src/go-gqlgen/gen"
 	"github.com/benrowe/demo-web-services/src/go-gqlgen/entities"
+	"github.com/jinzhu/gorm"
 )
 
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
-type Resolver struct{}
+type Resolver struct{
+    DB *gorm.DB
+}
 
 func (r *Resolver) Query() gen.QueryResolver {
 	return &queryResolver{r}
