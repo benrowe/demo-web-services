@@ -10,6 +10,8 @@ services:
       - ./src:/go/src/benrowe/demo-web-services/src/:cached
     ports:
       - 801:80
+    depends_on:
+      - database
   go-grpc:
     image: cosmtrek/air
     restart: always
@@ -19,6 +21,8 @@ services:
       - ./src:/go/src/benrowe/demo-web-services/src/:cached
     ports:
       - 802:80
+    depends_on:
+      - database
   go-swagger:
     image: cosmtrek/air
     restart: always
@@ -28,6 +32,8 @@ services:
       - ./src:/go/src/benrowe/demo-web-services/src/:cached
     ports:
       - 803:80
+    depends_on:
+      - database
   database:
     image: mariadb:latest
     restart: always
