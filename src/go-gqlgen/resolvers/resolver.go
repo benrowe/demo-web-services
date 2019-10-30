@@ -29,6 +29,11 @@ func (r *queryResolver) Employee(ctx context.Context, id string) (*entities.Empl
 }
 
 func (r *queryResolver) Employees(ctx context.Context) ([]*entities.Employee, error) {
+    var e []models.Employee
+    r.DB.Find(&e)
+
+    log.Printf("%+v", e)
+
 	employees := []*entities.Employee{
 	    &entities.Employee{
 	        ID: "asdfasdfasdf",
