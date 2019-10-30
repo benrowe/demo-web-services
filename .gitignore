@@ -2,3 +2,4 @@
 src/go-gqlgen/tmp
 src/go-swagger/tmp
 src/go-grpc/tmp
+tmp
