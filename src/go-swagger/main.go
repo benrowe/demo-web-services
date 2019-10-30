@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-    portFlag := flag.Int("port", 3000, "Port the service runs on")
+    portFlag := flag.Int("port", 80, "Port the service runs on")
     swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
     if err != nil {
         log.Fatalf("an error has occurred analysing the swagger spec: %v", err)
@@ -17,6 +17,7 @@ func main() {
 
     api := operations.NewGoSwaggerDemoAPI(swaggerSpec)
     server := restapi.NewServer(api)
+
     defer server.Shutdown()
 
     flag.Parse()
