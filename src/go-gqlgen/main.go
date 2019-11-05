@@ -2,6 +2,7 @@ package main
 
 import (
     "github.com/99designs/gqlgen/handler"
+    "github.com/benrowe/demo-web-services/src/app"
     "github.com/gorilla/mux"
     "github.com/benrowe/demo-web-services/src/go-gqlgen/gen"
     "github.com/benrowe/demo-web-services/src/go-gqlgen/resolvers"
@@ -15,14 +16,26 @@ import (
 
 const defaultPort = "8888"
 
+type env struct{}
+
+func (e env) LookupEnv(key string) (string, bool) {
+    return os.LookupEnv(key)
+}
+
+
 func main() {
+
+    cfg := app.LoadConfigFromEnv(&env{})
+
+    app := app.NewApp(cfg)
+    log.Printf("%+v", app)
 
     port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
 
-    db, err := gorm.Open("mysql", "root:password@(database)/sample?charset=utf8&parseTime=True&loc=Local")
+    db, err := gorm.Open("mysql", "root:password@(database)/employees?charset=utf8&parseTime=True&loc=Local")
     if err != nil {
         log.Fatalf("Unable to connect to database: %v", err)
     }
