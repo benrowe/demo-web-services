@@ -1,13 +1,13 @@
 package resolvers
 
 import (
-	"context"
-    "github.com/benrowe/demo-web-services/src/models"
+    "context"
+    "github.com/benrowe/demo-web-services/src/app/models"
     "log"
 
+    "github.com/benrowe/demo-web-services/src/go-gqlgen/entities"
     "github.com/benrowe/demo-web-services/src/go-gqlgen/gen"
-	"github.com/benrowe/demo-web-services/src/go-gqlgen/entities"
-	"github.com/jinzhu/gorm"
+    "github.com/jinzhu/gorm"
 )
 
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
