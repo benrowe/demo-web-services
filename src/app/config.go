@@ -20,7 +20,6 @@ type Config struct {
 }
 
 type Environment interface {
-    Getenv(key string) string
     LookupEnv(key string) (string, bool)
 }
 
