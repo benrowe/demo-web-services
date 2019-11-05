@@ -23,6 +23,9 @@ services:
     depends_on:
       - database
       - overview
+    environment:
+      - DB_HOST=database
+      - DB_DATABASE=employees
   go-grpc:
     image: cosmtrek/air
     restart: always
