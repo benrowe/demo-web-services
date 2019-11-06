@@ -22,8 +22,6 @@ func NewApp(c *Config) *App  {
         log.Fatalf("unable to connect to database: %v", err)
     }
 
-    defer db.Close()
-
     return &App{
         Config: c,
         DB:     db,
