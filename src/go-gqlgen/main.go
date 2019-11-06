@@ -3,11 +3,11 @@ package main
 import (
     "github.com/99designs/gqlgen/handler"
     "github.com/benrowe/demo-web-services/src/app"
-    "github.com/gorilla/mux"
+    "github.com/benrowe/demo-web-services/src/app/models"
     "github.com/benrowe/demo-web-services/src/go-gqlgen/gen"
     "github.com/benrowe/demo-web-services/src/go-gqlgen/resolvers"
-    "github.com/jinzhu/gorm"
     _ "github.com/go-sql-driver/mysql"
+    "github.com/gorilla/mux"
 
     "log"
     "net/http"
@@ -22,26 +22,22 @@ func (e env) LookupEnv(key string) (string, bool) {
     return os.LookupEnv(key)
 }
 
-
 func main() {
 
     cfg := app.LoadConfigFromEnv(&env{})
 
     app := app.NewApp(cfg)
+
+    models.Migrate(app.DB)
+
+    defer app.DB.Close()
+
     log.Printf("%+v", app)
 
     port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
-
-    db, err := gorm.Open("mysql", "root:password@(database)/employees?charset=utf8&parseTime=True&loc=Local")
-    if err != nil {
-        log.Fatalf("Unable to connect to database: %v", err)
-    }
-
-    defer db.Close()
-
 
     r := mux.NewRouter()
 
@@ -51,7 +47,7 @@ func main() {
     // routes
     r.Handle("/", handler.Playground("test", "/query"))
     r.Handle("/query", handler.GraphQL(gen.NewExecutableSchema(gen.Config{Resolvers: &resolvers.Resolver{
-        DB: db,
+        App: app,
     }})))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)

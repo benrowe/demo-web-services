@@ -2,18 +2,18 @@ package resolvers
 
 import (
     "context"
+    "github.com/benrowe/demo-web-services/src/app"
     "github.com/benrowe/demo-web-services/src/app/models"
     "log"
 
     "github.com/benrowe/demo-web-services/src/go-gqlgen/entities"
     "github.com/benrowe/demo-web-services/src/go-gqlgen/gen"
-    "github.com/jinzhu/gorm"
 )
 
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
 type Resolver struct{
-    DB *gorm.DB
+    App *app.App
 }
 
 func (r *Resolver) Query() gen.QueryResolver {
@@ -30,7 +30,7 @@ func (r *queryResolver) Employee(ctx context.Context, id string) (*entities.Empl
 
 func (r *queryResolver) Employees(ctx context.Context) ([]*entities.Employee, error) {
     var e []models.Employee
-    r.DB.Find(&e)
+    r.App.DB.Find(&e)
 
     log.Printf("%+v", e)
 
