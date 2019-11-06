@@ -35,6 +35,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Mutation() MutationResolver
 	Query() QueryResolver
 }
 
@@ -43,7 +44,15 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Employee struct {
-		ID func(childComplexity int) int
+		DateOfBirth func(childComplexity int) int
+		FirstName   func(childComplexity int) int
+		Gender      func(childComplexity int) int
+		ID          func(childComplexity int) int
+		LastName    func(childComplexity int) int
+	}
+
+	Mutation struct {
+		CreateEmployee func(childComplexity int, input entities.CreateEmployeeInput) int
 	}
 
 	Query struct {
@@ -52,6 +61,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type MutationResolver interface {
+	CreateEmployee(ctx context.Context, input entities.CreateEmployeeInput) (*entities.Employee, error)
+}
 type QueryResolver interface {
 	Employee(ctx context.Context, id string) (*entities.Employee, error)
 	Employees(ctx context.Context) ([]*entities.Employee, error)
@@ -72,12 +84,52 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Employee.dateOfBirth":
+		if e.complexity.Employee.DateOfBirth == nil {
+			break
+		}
+
+		return e.complexity.Employee.DateOfBirth(childComplexity), true
+
+	case "Employee.firstName":
+		if e.complexity.Employee.FirstName == nil {
+			break
+		}
+
+		return e.complexity.Employee.FirstName(childComplexity), true
+
+	case "Employee.Gender":
+		if e.complexity.Employee.Gender == nil {
+			break
+		}
+
+		return e.complexity.Employee.Gender(childComplexity), true
+
 	case "Employee.id":
 		if e.complexity.Employee.ID == nil {
 			break
 		}
 
 		return e.complexity.Employee.ID(childComplexity), true
+
+	case "Employee.lastName":
+		if e.complexity.Employee.LastName == nil {
+			break
+		}
+
+		return e.complexity.Employee.LastName(childComplexity), true
+
+	case "Mutation.createEmployee":
+		if e.complexity.Mutation.CreateEmployee == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createEmployee_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateEmployee(childComplexity, args["input"].(entities.CreateEmployeeInput)), true
 
 	case "Query.employee":
 		if e.complexity.Query.Employee == nil {
@@ -120,7 +172,20 @@ func (e *executableSchema) Query(ctx context.Context, op *ast.OperationDefinitio
 }
 
 func (e *executableSchema) Mutation(ctx context.Context, op *ast.OperationDefinition) *graphql.Response {
-	return graphql.ErrorResponse(ctx, "mutations are not supported")
+	ec := executionContext{graphql.GetRequestContext(ctx), e}
+
+	buf := ec.RequestMiddleware(ctx, func(ctx context.Context) []byte {
+		data := ec._Mutation(ctx, op.SelectionSet)
+		var buf bytes.Buffer
+		data.MarshalGQL(&buf)
+		return buf.Bytes()
+	})
+
+	return &graphql.Response{
+		Data:       buf,
+		Errors:     ec.Errors,
+		Extensions: ec.Extensions,
+	}
 }
 
 func (e *executableSchema) Subscription(ctx context.Context, op *ast.OperationDefinition) func() *graphql.Response {
@@ -148,13 +213,31 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var parsedSchema = gqlparser.MustLoadSchema(
 	&ast.Source{Name: "schema.graphql", Input: `
+scalar Date
+scalar Gender
+
 type Employee {
     id: ID!
+    firstName: String!
+    lastName: String!
+    dateOfBirth: Date!
+    Gender: Gender!
+}
+
+input CreateEmployeeInput {
+    firstName: String!
+    lastName: String!
+    dateOfBirth: Date!
+    Gender: Gender!
 }
 
 type Query {
     employee(id: ID!): Employee
     employees: [Employee!]!
+}
+
+type Mutation {
+    createEmployee(input: CreateEmployeeInput!): Employee!
 }
 `},
 )
@@ -162,6 +245,20 @@ type Query {
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_createEmployee_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 entities.CreateEmployeeInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalNCreateEmployeeInput2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐCreateEmployeeInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -264,6 +361,198 @@ func (ec *executionContext) _Employee_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Employee_firstName(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Employee",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FirstName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Employee_lastName(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Employee",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Employee_dateOfBirth(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Employee",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DateOfBirth, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNDate2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Employee_Gender(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Employee",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Gender, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNGender2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createEmployee(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createEmployee_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateEmployee(rctx, args["input"].(entities.CreateEmployeeInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Employee)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_employee(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -302,7 +591,7 @@ func (ec *executionContext) _Query_employee(ctx context.Context, field graphql.C
 	res := resTmp.(*entities.Employee)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx, field.Selections, res)
+	return ec.marshalOEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_employees(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -339,7 +628,7 @@ func (ec *executionContext) _Query_employees(ctx context.Context, field graphql.
 	res := resTmp.([]*entities.Employee)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx, field.Selections, res)
+	return ec.marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1568,6 +1857,42 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Context, obj interface{}) (entities.CreateEmployeeInput, error) {
+	var it entities.CreateEmployeeInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "firstName":
+			var err error
+			it.FirstName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "lastName":
+			var err error
+			it.LastName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "dateOfBirth":
+			var err error
+			it.DateOfBirth, err = ec.unmarshalNDate2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Gender":
+			var err error
+			it.Gender, err = ec.unmarshalNGender2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -1589,6 +1914,57 @@ func (ec *executionContext) _Employee(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = graphql.MarshalString("Employee")
 		case "id":
 			out.Values[i] = ec._Employee_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "firstName":
+			out.Values[i] = ec._Employee_firstName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "lastName":
+			out.Values[i] = ec._Employee_lastName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "dateOfBirth":
+			out.Values[i] = ec._Employee_dateOfBirth(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Gender":
+			out.Values[i] = ec._Employee_Gender(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var mutationImplementors = []string{"Mutation"}
+
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, mutationImplementors)
+
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Mutation",
+	})
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createEmployee":
+			out.Values[i] = ec._Mutation_createEmployee(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -1917,11 +2293,29 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNEmployee2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v entities.Employee) graphql.Marshaler {
+func (ec *executionContext) unmarshalNCreateEmployeeInput2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐCreateEmployeeInput(ctx context.Context, v interface{}) (entities.CreateEmployeeInput, error) {
+	return ec.unmarshalInputCreateEmployeeInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalNDate2string(ctx context.Context, v interface{}) (string, error) {
+	return graphql.UnmarshalString(v)
+}
+
+func (ec *executionContext) marshalNDate2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) marshalNEmployee2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx context.Context, sel ast.SelectionSet, v entities.Employee) graphql.Marshaler {
 	return ec._Employee(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v []*entities.Employee) graphql.Marshaler {
+func (ec *executionContext) marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx context.Context, sel ast.SelectionSet, v []*entities.Employee) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -1945,7 +2339,7 @@ func (ec *executionContext) marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemo
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx, sel, v[i])
+			ret[i] = ec.marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -1958,7 +2352,7 @@ func (ec *executionContext) marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemo
 	return ret
 }
 
-func (ec *executionContext) marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v *entities.Employee) graphql.Marshaler {
+func (ec *executionContext) marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx context.Context, sel ast.SelectionSet, v *entities.Employee) graphql.Marshaler {
 	if v == nil {
 		if !ec.HasError(graphql.GetResolverContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -1966,6 +2360,20 @@ func (ec *executionContext) marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑ
 		return graphql.Null
 	}
 	return ec._Employee(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGender2string(ctx context.Context, v interface{}) (string, error) {
+	return graphql.UnmarshalString(v)
+}
+
+func (ec *executionContext) marshalNGender2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
@@ -2245,11 +2653,11 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
 }
 
-func (ec *executionContext) marshalOEmployee2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v entities.Employee) graphql.Marshaler {
+func (ec *executionContext) marshalOEmployee2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx context.Context, sel ast.SelectionSet, v entities.Employee) graphql.Marshaler {
 	return ec._Employee(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalOEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋmodelsᚐEmployee(ctx context.Context, sel ast.SelectionSet, v *entities.Employee) graphql.Marshaler {
+func (ec *executionContext) marshalOEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx context.Context, sel ast.SelectionSet, v *entities.Employee) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

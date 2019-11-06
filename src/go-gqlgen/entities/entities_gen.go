@@ -2,6 +2,17 @@
 
 package entities
 
+type CreateEmployeeInput struct {
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	DateOfBirth string `json:"dateOfBirth"`
+	Gender      string `json:"Gender"`
+}
+
 type Employee struct {
-	ID string `json:"id"`
+	ID          string `json:"id"`
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	DateOfBirth string `json:"dateOfBirth"`
+	Gender      string `json:"Gender"`
 }
