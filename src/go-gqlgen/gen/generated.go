@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -40,6 +41,9 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Constraint func(ctx context.Context, obj interface{}, next graphql.Resolver, rules []string) (res interface{}, err error)
+
+	IsAuthenticated func(ctx context.Context, obj interface{}, next graphql.Resolver, scope []string) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -52,7 +56,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateEmployee func(childComplexity int, input entities.CreateEmployeeInput) int
+		CreateEmployee    func(childComplexity int, input entities.CreateEmployeeInput) int
+		TerminateEmployee func(childComplexity int, id string) int
 	}
 
 	Query struct {
@@ -63,6 +68,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateEmployee(ctx context.Context, input entities.CreateEmployeeInput) (*entities.Employee, error)
+	TerminateEmployee(ctx context.Context, id string) (*entities.Employee, error)
 }
 type QueryResolver interface {
 	Employee(ctx context.Context, id string) (*entities.Employee, error)
@@ -130,6 +136,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateEmployee(childComplexity, args["input"].(entities.CreateEmployeeInput)), true
+
+	case "Mutation.terminateEmployee":
+		if e.complexity.Mutation.TerminateEmployee == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_terminateEmployee_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.TerminateEmployee(childComplexity, args["id"].(string)), true
 
 	case "Query.employee":
 		if e.complexity.Query.Employee == nil {
@@ -212,8 +230,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var parsedSchema = gqlparser.MustLoadSchema(
-	&ast.Source{Name: "schema.graphql", Input: `
-scalar Date
+	&ast.Source{Name: "schema.graphql", Input: `scalar Date
 scalar Gender
 
 type Employee {
@@ -225,9 +242,9 @@ type Employee {
 }
 
 input CreateEmployeeInput {
-    firstName: String!
-    lastName: String!
-    dateOfBirth: Date!
+    firstName: String! @constraint(rules: ["min:2"])
+    lastName: String! @constraint(rules: ["min:2"])
+    dateOfBirth: Date! @constraint(rules: ["date:yyyy/mm/dd"])
     Gender: Gender!
 }
 
@@ -238,13 +255,51 @@ type Query {
 
 type Mutation {
     createEmployee(input: CreateEmployeeInput!): Employee!
+    terminateEmployee(id: ID!): Employee!
 }
+
+# Directives
+directive @isAuthenticated(
+    scope: [String!]!
+) on FIELD_DEFINITION
+
+directive @constraint(
+    rules: [String!]!
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 `},
 )
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_constraint_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []string
+	if tmp, ok := rawArgs["rules"]; ok {
+		arg0, err = ec.unmarshalNString2ᚕstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["rules"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) dir_isAuthenticated_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []string
+	if tmp, ok := rawArgs["scope"]; ok {
+		arg0, err = ec.unmarshalNString2ᚕstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["scope"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createEmployee_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -257,6 +312,20 @@ func (ec *executionContext) field_Mutation_createEmployee_args(ctx context.Conte
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_terminateEmployee_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -536,6 +605,50 @@ func (ec *executionContext) _Mutation_createEmployee(ctx context.Context, field 
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateEmployee(rctx, args["input"].(entities.CreateEmployeeInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Employee)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_terminateEmployee(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_terminateEmployee_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().TerminateEmployee(rctx, args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1865,21 +1978,72 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 		switch k {
 		case "firstName":
 			var err error
-			it.FirstName, err = ec.unmarshalNString2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2"})
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Constraint == nil {
+					return nil, errors.New("directive constraint is not implemented")
+				}
+				return ec.directives.Constraint(ctx, obj, directive0, rules)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
 				return it, err
+			}
+			if data, ok := tmp.(string); ok {
+				it.FirstName = data
+			} else {
+				return it, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 			}
 		case "lastName":
 			var err error
-			it.LastName, err = ec.unmarshalNString2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2"})
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Constraint == nil {
+					return nil, errors.New("directive constraint is not implemented")
+				}
+				return ec.directives.Constraint(ctx, obj, directive0, rules)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
 				return it, err
 			}
+			if data, ok := tmp.(string); ok {
+				it.LastName = data
+			} else {
+				return it, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+			}
 		case "dateOfBirth":
 			var err error
-			it.DateOfBirth, err = ec.unmarshalNDate2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNDate2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"date:yyyy/mm/dd"})
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Constraint == nil {
+					return nil, errors.New("directive constraint is not implemented")
+				}
+				return ec.directives.Constraint(ctx, obj, directive0, rules)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
 				return it, err
+			}
+			if data, ok := tmp.(string); ok {
+				it.DateOfBirth = data
+			} else {
+				return it, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 			}
 		case "Gender":
 			var err error
@@ -1965,6 +2129,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = graphql.MarshalString("Mutation")
 		case "createEmployee":
 			out.Values[i] = ec._Mutation_createEmployee(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "terminateEmployee":
+			out.Values[i] = ec._Mutation_terminateEmployee(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2402,6 +2571,35 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstring(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstring(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
