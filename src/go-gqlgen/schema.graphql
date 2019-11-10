@@ -1,4 +1,3 @@
-
 scalar Date
 scalar Gender
 
@@ -11,9 +10,9 @@ type Employee {
 }
 
 input CreateEmployeeInput {
-    firstName: String!
-    lastName: String!
-    dateOfBirth: Date!
+    firstName: String! @constraint(rules: ["min:2"])
+    lastName: String! @constraint(rules: ["min:2"])
+    dateOfBirth: Date! @constraint(rules: ["date:yyyy/mm/dd"])
     Gender: Gender!
 }
 
@@ -24,4 +23,14 @@ type Query {
 
 type Mutation {
     createEmployee(input: CreateEmployeeInput!): Employee!
+    terminateEmployee(id: ID!): Employee!
 }
+
+# Directives
+directive @isAuthenticated(
+    scope: [String!]!
+) on FIELD_DEFINITION
+
+directive @constraint(
+    rules: [String!]!
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
