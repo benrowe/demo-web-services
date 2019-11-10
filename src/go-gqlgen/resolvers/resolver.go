@@ -40,6 +40,10 @@ func (m mutationResolver) CreateEmployee(ctx context.Context, input entities.Cre
     return transformations.ModelToGqlEntityEmployee(employee)
 }
 
+func (m mutationResolver) TerminateEmployee(ctx context.Context, id string) (*entities.Employee, error) {
+    return nil, nil
+}
+
 func (r *queryResolver) Employee(ctx context.Context, id string) (*entities.Employee, error) {
     return &entities.Employee{
         ID: id,
