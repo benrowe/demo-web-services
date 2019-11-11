@@ -242,8 +242,8 @@ type Employee {
 }
 
 input CreateEmployeeInput {
-    firstName: String! @constraint(rules: ["min:2"])
-    lastName: String! @constraint(rules: ["min:2"])
+    firstName: String! @constraint(rules: ["min:2", "required"])
+    lastName: String! @constraint(rules: ["min:2", "required"])
     dateOfBirth: Date! @constraint(rules: ["date:yyyy/mm/dd"])
     Gender: Gender!
 }
@@ -1980,7 +1980,7 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 			var err error
 			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
 			directive1 := func(ctx context.Context) (interface{}, error) {
-				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2"})
+				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2", "required"})
 				if err != nil {
 					return nil, err
 				}
@@ -2003,7 +2003,7 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 			var err error
 			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
 			directive1 := func(ctx context.Context) (interface{}, error) {
-				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2"})
+				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2", "required"})
 				if err != nil {
 					return nil, err
 				}
