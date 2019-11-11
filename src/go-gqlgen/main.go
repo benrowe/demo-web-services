@@ -63,23 +63,25 @@ func main() {
     }
 }
 
+type value struct{ v interface{} }
+
 func loadDirectives(d *gen.DirectiveRoot) {
     d.Constraint = func(ctx context.Context, obj interface{}, next graphql.Resolver, rules []string) (res interface{}, err error) {
 
-        log.Printf("validating: %v\n", rules)
-        type value struct{ v interface{} }
         r := govalidator.MapData{
             "v": rules,
         }
+
+        log.Print(r)
+
         opt := govalidator.Options{
-            Rules: r,
-            Data:  &value{v: obj},
+            Rules:           r,
+            Data:            &value{v: obj},
+            RequiredDefault: true,
         }
         v := govalidator.New(opt)
         e := v.ValidateStruct()
-        log.Print(e)
         if len(e) > 0 {
-            log.Printf("%+v", e)
             return nil, fmt.Errorf("%s", e)
         }
 
