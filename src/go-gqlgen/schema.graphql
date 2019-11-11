@@ -10,8 +10,8 @@ type Employee {
 }
 
 input CreateEmployeeInput {
-    firstName: String! @constraint(rules: ["min:2"])
-    lastName: String! @constraint(rules: ["min:2"])
+    firstName: String! @constraint(rules: ["min:2", "required"])
+    lastName: String! @constraint(rules: ["min:2", "required"])
     dateOfBirth: Date! @constraint(rules: ["date:yyyy/mm/dd"])
     Gender: Gender!
 }
