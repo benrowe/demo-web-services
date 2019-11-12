@@ -45,6 +45,11 @@ Using the sample database, solve the problem
    4. Authorisation (Authentication handled as part of an external oauth 2.0 implementation)
 3. Share the same data source
 
+## Common Dependencies
+- data access layer: gorm
+- request validation: govalidator
+- application bootstrap: custom
+
 ## Setup
 
 `docker-compose up`
