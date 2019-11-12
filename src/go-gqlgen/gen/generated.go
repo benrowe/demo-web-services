@@ -41,7 +41,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	Constraint func(ctx context.Context, obj interface{}, next graphql.Resolver, rules []string) (res interface{}, err error)
+	Constraint func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, rules []string) (res interface{}, err error)
 
 	IsAuthenticated func(ctx context.Context, obj interface{}, next graphql.Resolver, scope []string) (res interface{}, err error)
 }
@@ -242,9 +242,9 @@ type Employee {
 }
 
 input CreateEmployeeInput {
-    firstName: String! @constraint(rules: ["min:2", "required"])
-    lastName: String! @constraint(rules: ["min:2", "required"])
-    dateOfBirth: Date! @constraint(rules: ["date:yyyy/mm/dd"])
+    firstName: String! @constraint(name: "firstName", rules: ["min:2", "required"])
+    lastName: String! @constraint(name: "lastName", rules: ["min:2", "required"])
+    dateOfBirth: Date! @constraint(name: "dateOfBirth", rules: ["date:yyyy/mm/dd"])
     Gender: Gender!
 }
 
@@ -264,6 +264,7 @@ directive @isAuthenticated(
 ) on FIELD_DEFINITION
 
 directive @constraint(
+    name: String!
     rules: [String!]!
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
 `},
@@ -276,14 +277,22 @@ directive @constraint(
 func (ec *executionContext) dir_constraint_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 []string
-	if tmp, ok := rawArgs["rules"]; ok {
-		arg0, err = ec.unmarshalNString2ᚕstring(ctx, tmp)
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["rules"] = arg0
+	args["name"] = arg0
+	var arg1 []string
+	if tmp, ok := rawArgs["rules"]; ok {
+		arg1, err = ec.unmarshalNString2ᚕstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["rules"] = arg1
 	return args, nil
 }
 
@@ -1980,6 +1989,10 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 			var err error
 			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
 			directive1 := func(ctx context.Context) (interface{}, error) {
+				name, err := ec.unmarshalNString2string(ctx, "firstName")
+				if err != nil {
+					return nil, err
+				}
 				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2", "required"})
 				if err != nil {
 					return nil, err
@@ -1987,7 +2000,7 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 				if ec.directives.Constraint == nil {
 					return nil, errors.New("directive constraint is not implemented")
 				}
-				return ec.directives.Constraint(ctx, obj, directive0, rules)
+				return ec.directives.Constraint(ctx, obj, directive0, name, rules)
 			}
 
 			tmp, err := directive1(ctx)
@@ -2003,6 +2016,10 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 			var err error
 			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
 			directive1 := func(ctx context.Context) (interface{}, error) {
+				name, err := ec.unmarshalNString2string(ctx, "lastName")
+				if err != nil {
+					return nil, err
+				}
 				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2", "required"})
 				if err != nil {
 					return nil, err
@@ -2010,7 +2027,7 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 				if ec.directives.Constraint == nil {
 					return nil, errors.New("directive constraint is not implemented")
 				}
-				return ec.directives.Constraint(ctx, obj, directive0, rules)
+				return ec.directives.Constraint(ctx, obj, directive0, name, rules)
 			}
 
 			tmp, err := directive1(ctx)
@@ -2026,6 +2043,10 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 			var err error
 			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNDate2string(ctx, v) }
 			directive1 := func(ctx context.Context) (interface{}, error) {
+				name, err := ec.unmarshalNString2string(ctx, "dateOfBirth")
+				if err != nil {
+					return nil, err
+				}
 				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"date:yyyy/mm/dd"})
 				if err != nil {
 					return nil, err
@@ -2033,7 +2054,7 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 				if ec.directives.Constraint == nil {
 					return nil, errors.New("directive constraint is not implemented")
 				}
-				return ec.directives.Constraint(ctx, obj, directive0, rules)
+				return ec.directives.Constraint(ctx, obj, directive0, name, rules)
 			}
 
 			tmp, err := directive1(ctx)
