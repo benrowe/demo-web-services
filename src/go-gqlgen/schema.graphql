@@ -10,9 +10,9 @@ type Employee {
 }
 
 input CreateEmployeeInput {
-    firstName: String! @constraint(rules: ["min:2", "required"])
-    lastName: String! @constraint(rules: ["min:2", "required"])
-    dateOfBirth: Date! @constraint(rules: ["date:yyyy/mm/dd"])
+    firstName: String! @constraint(name: "firstName", rules: ["min:2", "required"])
+    lastName: String! @constraint(name: "lastName", rules: ["min:2", "required"])
+    dateOfBirth: Date! @constraint(name: "dateOfBirth", rules: ["date:yyyy/mm/dd"])
     Gender: Gender!
 }
 
@@ -32,5 +32,6 @@ directive @isAuthenticated(
 ) on FIELD_DEFINITION
 
 directive @constraint(
+    name: String!
     rules: [String!]!
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
