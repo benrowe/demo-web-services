@@ -42,6 +42,7 @@ Using the sample database, solve the problem
    1. Validation
    2. Error handling
    3. Logging
+   4. Authorisation (Authentication handled as part of an external oauth 2.0 implementation)
 3. Share the same data source
 
 ## Setup
@@ -51,6 +52,6 @@ Using the sample database, solve the problem
 ## TODO
 
 - [x] start all implementations via docker-compose + common dependencies
-- [ ] run migrations automatically on `up`
+- [x] run migrations automatically on `up`
 - [x] Get all impementations responding to http requests
 - [ ] scaffold basic employees list implementation
