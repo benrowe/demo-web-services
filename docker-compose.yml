@@ -19,7 +19,7 @@ services:
       - go_pkg:/go/pkg:cached
       - ./src:/go/src/benrowe/demo-web-services/src/:cached
     ports:
-      - 801:80
+      - 801:8888
     depends_on:
       - database
       - overview
