@@ -32,8 +32,7 @@ Using the sample database, solve the problem
   - Create
   - Update
   - Archive
-  
-
+ 
 
 ## Criteria
 
