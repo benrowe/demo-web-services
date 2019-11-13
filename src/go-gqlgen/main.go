@@ -64,11 +64,23 @@ func main() {
 
 func loadDirectives(d *gen.DirectiveRoot) {
     d.Constraint = func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, rules []string) (res interface{}, err error) {
-        if msg, ok := app.Validate(obj, name, rules); !ok {
+        // convert rules
+        if msg, ok := app.ValidateVal(obj, name, convertRules(rules)); !ok {
             return nil, fmt.Errorf("invalid input: %s", msg)
         }
         return next(ctx)
     }
+}
+
+func convertRules(rules []string) *[]app.ValidationRule {
+    newRules := []app.ValidationRule{}
+
+    for i, rule := range rules {
+        newRules[i] = app.ValidationRule(rule)
+    }
+
+    return &newRules
+
 }
 
 func printRequest(next http.Handler) http.Handler {
