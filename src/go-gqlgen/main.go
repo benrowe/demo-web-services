@@ -11,8 +11,6 @@ import (
     "github.com/benrowe/demo-web-services/src/go-gqlgen/resolvers"
     _ "github.com/go-sql-driver/mysql"
     "github.com/gorilla/mux"
-    "github.com/thedevsaddam/govalidator"
-
     "log"
     "net/http"
     "os"
@@ -53,6 +51,7 @@ func main() {
     c := gen.Config{Resolvers: &resolvers.Resolver{
         App: app,
     }}
+
     loadDirectives(&c.Directives)
 
     r.Handle("/query", handler.GraphQL(gen.NewExecutableSchema(c)))
@@ -63,28 +62,11 @@ func main() {
     }
 }
 
-type value struct{ v interface{} }
-
 func loadDirectives(d *gen.DirectiveRoot) {
-    d.Constraint = func(ctx context.Context, obj interface{}, next graphql.Resolver, rules []string) (res interface{}, err error) {
-
-        r := govalidator.MapData{
-            "v": rules,
+    d.Constraint = func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, rules []string) (res interface{}, err error) {
+        if msg, ok := app.Validate(obj, name, rules); !ok {
+            return nil, fmt.Errorf("invalid input: %s", msg)
         }
-
-        log.Print(r)
-
-        opt := govalidator.Options{
-            Rules:           r,
-            Data:            &value{v: obj},
-            RequiredDefault: true,
-        }
-        v := govalidator.New(opt)
-        e := v.ValidateStruct()
-        if len(e) > 0 {
-            return nil, fmt.Errorf("%s", e)
-        }
-
         return next(ctx)
     }
 }
