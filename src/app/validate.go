@@ -1,37 +1,49 @@
 package app
 
 import (
-    "github.com/thedevsaddam/govalidator"
+    "fmt"
+    "github.com/go-playground/validator/v10"
     "log"
     "strings"
 )
 
-type validateValue struct {
-    val interface{}
+// ValidationRule
+type ValidationRule string
+
+// forPlayground converts the rule into a format for consumption by go-playground's validator
+func (r ValidationRule) forPlayground() string {
+    return strings.Replace(string(r), ":", "=", 0)
 }
 
-// Validate the value against the rules
-func Validate(val interface{}, name string, rules []string) (msg string, ok bool) {
+// ValidateVal the value against the rules
+func ValidateVal(val interface{}, name string, rules *[]ValidationRule) (msg string, ok bool) {
     msg = ""
     ok = true
 
-    r := govalidator.MapData{
-        "val": rules,
-    }
-    opt := govalidator.Options{
-        Data:  &validateValue{val: val},
-        Rules: r,
-    }
+    validate := validator.New()
 
-    v := govalidator.New(opt)
-    e := v.ValidateStruct()
-
-    if len(e) > 0 {
-        log.Printf("%+v", e)
-        // we have an error
-        msg = strings.Replace(e["val"][0], "val", name, 1)
+    s := stringifyRulesForPlayground(rules)
+    if s == "" {
+        log.Printf("no rules available")
+        return
+    }
+    err := validate.Var(val, s)
+    if err != nil {
         ok = false
+        msg = fmt.Sprintf("The %v field is %s", name, err.Error())
     }
-
     return
+}
+
+// stringifyRulesForPlayground converts the the slice of validation rules into a single string for consumption with
+// playgrounds validator
+func stringifyRulesForPlayground(r *[]ValidationRule) string {
+    var s []string
+    for i, rr := range *r {
+        rule := rr.forPlayground()
+        if rule != "" {
+            s[i] = rule
+        }
+    }
+    return strings.Join(s, ",")
 }
