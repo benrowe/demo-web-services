@@ -22,7 +22,7 @@ jobs:
 
       - name: Syntax check
         run: |
-          test -z $(gofmt -l .)
+          test -z "$(gofmt -l ./src/)"
 
       - name: Build
         run: |
