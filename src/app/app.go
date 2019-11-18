@@ -8,15 +8,15 @@ import (
 
 type App struct {
     Config *Config
-    DB *gorm.DB
+    DB     *gorm.DB
 }
 
 func (db *DBConfig) dsn() string {
     return fmt.Sprintf("%s:%s@(%s)/%s?charset=%s&parseTime=true&loc=Local", db.Username, db.Password, db.Host, db.Database, db.Charset)
 }
 
-// NewApp generates a new instance of the core application container from the provided configuration
-func NewApp(c *Config) *App  {
+// NewApp generates a newInstance instance of the core application container from the provided configuration
+func NewApp(c *Config) *App {
     db, err := gorm.Open(c.DB.Dialect, c.DB.dsn())
     if err != nil {
         log.Fatalf("unable to connect to database: %v", err)
@@ -27,5 +27,3 @@ func NewApp(c *Config) *App  {
         DB:     db,
     }
 }
-
-
