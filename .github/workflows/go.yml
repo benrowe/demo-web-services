@@ -18,7 +18,7 @@ jobs:
 
       - name: Fetch Tools
         run: |
-          go get -u golang.org/x/lint/golint.
+          go get -u golang.org/x/lint/golint
 
       - name: Syntax check
         run: |
