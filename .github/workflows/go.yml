@@ -21,20 +21,24 @@ jobs:
           go get -u golang.org/x/lint/golint
 
       - name: Get dependencies
+        working-directory: ./src
         run: |
-          (cd src ; go get -v -t -d ./...)
+          go get -v -t -d ./...
 
       - name: Syntax check
+        working-directory: ./src
         run: |
-          test -z "$(gofmt -l ./src/)"
-          test -z "$(golint ./src/...)"
+          test -z "$(gofmt -l ./)"
+          test -z "$(golint ./...)"
 
       - name: Build
+        working-directory: ./src
         run: |
-          (cd src ; go build -v ./go-gqlgen/main.go)
-          (cd src ; go build -v ./go-grpc/main.go)
-          (cd src ; go build -v ./go-swagger/main.go)
+          go build -v ./go-gqlgen/main.go
+          go build -v ./go-grpc/main.go
+          go build -v ./go-swagger/main.go
 
       - name: Test
+        working-directory: ./src
         run: |
-          go test ./src/
+          go test ./...
