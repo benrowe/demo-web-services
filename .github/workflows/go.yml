@@ -18,11 +18,7 @@ jobs:
 
       - name: Fetch Tools
         run: |
-          go get -u golang.org/x/lint/golint
-
-      - name: Get dependencies
-        run: |
-          go get -v -t -d ./...
+          go get -u golang.org/x/lint/golint.
 
       - name: Syntax check
         run: |
