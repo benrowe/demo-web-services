@@ -23,6 +23,7 @@ services:
     depends_on:
       - database
       - overview
+    #      - oauth
     environment:
       - DB_HOST=database
       - DB_DATABASE=employees
@@ -39,6 +40,7 @@ services:
     depends_on:
       - database
       - overview
+  #      - oauth
   go-swagger:
     image: cosmtrek/air
     restart: always
@@ -52,6 +54,7 @@ services:
     depends_on:
       - database
       - overview
+  #      - oauth
   database:
     image: mariadb:latest
     restart: always
@@ -67,6 +70,14 @@ services:
     restart: always
     ports:
       - 8080:8080
+#  oauth:
+#    image: ory/hydra
+#  oauth_database:
+#    image: postgres:9.6
+#    environment:
+#      - POSTGRES_USER=hydra
+#      - POSTGRES_PASSWORD=secret
+#      - POSTGRES_DB=hydra
 volumes:
   go_src:
   go_pkg:
