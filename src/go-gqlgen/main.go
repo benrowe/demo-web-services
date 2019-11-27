@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/handler"
 	"github.com/benrowe/demo-web-services/src/app"
@@ -80,12 +79,4 @@ func convertRules(rules []string) *[]app.ValidationRule {
 	}
 
 	return &newRules
-
-}
-
-func printRequest(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("receiving request: %v", r.URL.Path)
-		next.ServeHTTP(w, r)
-	})
 }
