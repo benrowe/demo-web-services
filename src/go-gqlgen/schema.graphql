@@ -1,29 +1,90 @@
 scalar Date
-scalar Gender
 
+enum Gender {
+    MALE
+    FEMALE
+    UNDEFINED
+}
+
+"Employee contains data about a individual"
 type Employee {
     id: ID!
     firstName: String!
     lastName: String!
     dateOfBirth: Date!
-    Gender: Gender!
+    age: Int!
+    gender: Gender!
+    remuneration: Remuneration!
+    role: AssignedRole!
+    department: Department!
+}
+
+type Remuneration {
+    amount: Int!
+    type: RenumerationType!
+    startDate: Date!
+    endDate: Date
+}
+enum RenumerationType {
+    SALARY
+    WAGE
+}
+
+"The assignment of a role to an employee"
+type AssignedRole {
+    role: Role!
+    employee: Employee!
+    startDate: Date!
+    endDate: Date
+}
+
+type Role {
+    title: String!
+}
+
+type Department {
+    id: ID!
+    name: String!
+    manager: Employee!
 }
 
 input CreateEmployeeInput {
-    firstName: String! @constraint(name: "firstName", rules: ["min:2", "required"])
-    lastName: String! @constraint(name: "lastName", rules: ["min:2", "required"])
+    firstName: String! @constraint(name: "firstName", rules: ["min:2", "max:128", "required"])
+    lastName: String! @constraint(name: "lastName", rules: ["min:2", "max:128", "required"])
     dateOfBirth: Date! @constraint(name: "dateOfBirth", rules: ["date:yyyy/mm/dd"])
     Gender: Gender!
 }
 
+input CreateDepartmentInput {
+    name: String! @constraint(name: "name", rules: ["min:2", "max:128", "required"])
+    manager: ID!
+}
+
+input CreateRoleInput {
+    title: String! @constraint(name: "title", rules: ["min:2"])
+}
+
+input AssignRoleInput {
+    role: ID! @constraint(name: "role", rules: ["uuid"])
+    employees: [ID!]!
+    startDate: Date!
+}
+
 type Query {
-    employee(id: ID!): Employee
     employees: [Employee!]!
+    employee(id: ID!): Employee
+    departments: [Department!]!
+    department(id: ID!): Department
+    roles: [Role!]!
+    role(id: ID!): Role
 }
 
 type Mutation {
     createEmployee(input: CreateEmployeeInput!): Employee!
     terminateEmployee(id: ID!): Employee!
+    createDepartment(input: CreateDepartmentInput!): Department!
+    createRole(input: CreateRoleInput!): Role!
+    assignRole(input: AssignRoleInput): [AssignedRole!]!
 }
 
 # Directives

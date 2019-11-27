@@ -30,6 +30,6 @@ func ModelToGqlEntityEmployee(m *models.Employee) (*entities.Employee, error) {
 		FirstName:   m.FirstName,
 		LastName:    m.LastName,
 		DateOfBirth: m.BirthDate.String(),
-		Gender:      string(m.Gender),
+		Gender:      entities.GenderFemale,
 	}, nil
 }
