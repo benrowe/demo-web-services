@@ -61,8 +61,6 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=sample
-    volumes:
-      - ./sampledb:/docker-entrypoint-initdb.d
     ports:
       - 3306:3306
   adminer:
