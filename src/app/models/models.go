@@ -9,16 +9,21 @@ type Gender string
 
 type Employee struct {
 	gorm.Model
-	FirstName string
-	LastName  string
-	BirthDate *time.Time
-	Gender    Gender
-	StartDate *time.Time
-	Salaries  []Salary
+	FirstName   string
+	LastName    string
+	BirthDate   *time.Time
+	Gender      Gender
+	StartDate   *time.Time
+	Salaries    []Salary
+	Departments []Department
+	Titles      []Title
 }
 
 type Department struct {
 	gorm.Model
+	Name      string
+	Manager   Employee
+	Employees []Employee // from & to dates
 }
 
 type Salary struct {
@@ -30,6 +35,7 @@ type Salary struct {
 
 type Manager struct {
 	gorm.Model
+	Employee Employee
 }
 
 type Title struct {
