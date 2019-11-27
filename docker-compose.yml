@@ -1,7 +1,7 @@
 version: "3"
 services:
   overview:
-    image: cosmtrek/air
+    image: cosmtrek/air:v1.10
     restart: always
     working_dir: /go/src/benrowe/demo-web-services/
     volumes:
@@ -28,7 +28,7 @@ services:
       - DB_HOST=database
       - DB_DATABASE=employees
   go-grpc:
-    image: cosmtrek/air
+    image: cosmtrek/air:v1.10
     restart: always
     working_dir: /go/src/benrowe/demo-web-services/src/go-grpc
     volumes:
@@ -42,7 +42,7 @@ services:
       - overview
   #      - oauth
   go-swagger:
-    image: cosmtrek/air
+    image: cosmtrek/air:v1.10
     restart: always
     working_dir: /go/src/benrowe/demo-web-services/src/go-swagger
     volumes:
