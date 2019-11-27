@@ -27,13 +27,11 @@ func main() {
 
 	cfg := app.LoadConfigFromEnv(&env{})
 
-	app := app.NewApp(cfg)
+	a := app.NewApp(cfg)
 
-	models.Migrate(app.DB)
+	models.Migrate(a.DB)
 
-	defer app.DB.Close()
-
-	log.Printf("%+v", app)
+	defer a.DB.Close()
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -43,12 +41,12 @@ func main() {
 	r := mux.NewRouter()
 
 	// middleware
-	r.Use(printRequest)
+	r.Use(app.PrintRequest)
 
 	// routes
 	r.Handle("/", handler.Playground("test", "/query"))
 	c := gen.Config{Resolvers: &resolvers.Resolver{
-		App: app,
+		App: a,
 	}}
 
 	loadDirectives(&c.Directives)
