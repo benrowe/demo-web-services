@@ -47,32 +47,74 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AssignedRole struct {
+		Employee  func(childComplexity int) int
+		EndDate   func(childComplexity int) int
+		Role      func(childComplexity int) int
+		StartDate func(childComplexity int) int
+	}
+
+	Department struct {
+		ID      func(childComplexity int) int
+		Manager func(childComplexity int) int
+		Name    func(childComplexity int) int
+	}
+
 	Employee struct {
-		DateOfBirth func(childComplexity int) int
-		FirstName   func(childComplexity int) int
-		Gender      func(childComplexity int) int
-		ID          func(childComplexity int) int
-		LastName    func(childComplexity int) int
+		Age          func(childComplexity int) int
+		DateOfBirth  func(childComplexity int) int
+		Department   func(childComplexity int) int
+		FirstName    func(childComplexity int) int
+		Gender       func(childComplexity int) int
+		ID           func(childComplexity int) int
+		LastName     func(childComplexity int) int
+		Remuneration func(childComplexity int) int
+		Role         func(childComplexity int) int
 	}
 
 	Mutation struct {
+		AssignRole        func(childComplexity int, input *entities.AssignRoleInput) int
+		CreateDepartment  func(childComplexity int, input entities.CreateDepartmentInput) int
 		CreateEmployee    func(childComplexity int, input entities.CreateEmployeeInput) int
+		CreateRole        func(childComplexity int, input entities.CreateRoleInput) int
 		TerminateEmployee func(childComplexity int, id string) int
 	}
 
 	Query struct {
-		Employee  func(childComplexity int, id string) int
-		Employees func(childComplexity int) int
+		Department  func(childComplexity int, id string) int
+		Departments func(childComplexity int) int
+		Employee    func(childComplexity int, id string) int
+		Employees   func(childComplexity int) int
+		Role        func(childComplexity int, id string) int
+		Roles       func(childComplexity int) int
+	}
+
+	Remuneration struct {
+		Amount    func(childComplexity int) int
+		EndDate   func(childComplexity int) int
+		StartDate func(childComplexity int) int
+		Type      func(childComplexity int) int
+	}
+
+	Role struct {
+		Title func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
 	CreateEmployee(ctx context.Context, input entities.CreateEmployeeInput) (*entities.Employee, error)
 	TerminateEmployee(ctx context.Context, id string) (*entities.Employee, error)
+	CreateDepartment(ctx context.Context, input entities.CreateDepartmentInput) (*entities.Department, error)
+	CreateRole(ctx context.Context, input entities.CreateRoleInput) (*entities.Role, error)
+	AssignRole(ctx context.Context, input *entities.AssignRoleInput) ([]*entities.AssignedRole, error)
 }
 type QueryResolver interface {
-	Employee(ctx context.Context, id string) (*entities.Employee, error)
 	Employees(ctx context.Context) ([]*entities.Employee, error)
+	Employee(ctx context.Context, id string) (*entities.Employee, error)
+	Departments(ctx context.Context) ([]*entities.Department, error)
+	Department(ctx context.Context, id string) (*entities.Department, error)
+	Roles(ctx context.Context) ([]*entities.Role, error)
+	Role(ctx context.Context, id string) (*entities.Role, error)
 }
 
 type executableSchema struct {
@@ -90,12 +132,75 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "AssignedRole.employee":
+		if e.complexity.AssignedRole.Employee == nil {
+			break
+		}
+
+		return e.complexity.AssignedRole.Employee(childComplexity), true
+
+	case "AssignedRole.endDate":
+		if e.complexity.AssignedRole.EndDate == nil {
+			break
+		}
+
+		return e.complexity.AssignedRole.EndDate(childComplexity), true
+
+	case "AssignedRole.role":
+		if e.complexity.AssignedRole.Role == nil {
+			break
+		}
+
+		return e.complexity.AssignedRole.Role(childComplexity), true
+
+	case "AssignedRole.startDate":
+		if e.complexity.AssignedRole.StartDate == nil {
+			break
+		}
+
+		return e.complexity.AssignedRole.StartDate(childComplexity), true
+
+	case "Department.id":
+		if e.complexity.Department.ID == nil {
+			break
+		}
+
+		return e.complexity.Department.ID(childComplexity), true
+
+	case "Department.manager":
+		if e.complexity.Department.Manager == nil {
+			break
+		}
+
+		return e.complexity.Department.Manager(childComplexity), true
+
+	case "Department.name":
+		if e.complexity.Department.Name == nil {
+			break
+		}
+
+		return e.complexity.Department.Name(childComplexity), true
+
+	case "Employee.age":
+		if e.complexity.Employee.Age == nil {
+			break
+		}
+
+		return e.complexity.Employee.Age(childComplexity), true
+
 	case "Employee.dateOfBirth":
 		if e.complexity.Employee.DateOfBirth == nil {
 			break
 		}
 
 		return e.complexity.Employee.DateOfBirth(childComplexity), true
+
+	case "Employee.department":
+		if e.complexity.Employee.Department == nil {
+			break
+		}
+
+		return e.complexity.Employee.Department(childComplexity), true
 
 	case "Employee.firstName":
 		if e.complexity.Employee.FirstName == nil {
@@ -104,7 +209,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Employee.FirstName(childComplexity), true
 
-	case "Employee.Gender":
+	case "Employee.gender":
 		if e.complexity.Employee.Gender == nil {
 			break
 		}
@@ -125,6 +230,44 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Employee.LastName(childComplexity), true
 
+	case "Employee.remuneration":
+		if e.complexity.Employee.Remuneration == nil {
+			break
+		}
+
+		return e.complexity.Employee.Remuneration(childComplexity), true
+
+	case "Employee.role":
+		if e.complexity.Employee.Role == nil {
+			break
+		}
+
+		return e.complexity.Employee.Role(childComplexity), true
+
+	case "Mutation.assignRole":
+		if e.complexity.Mutation.AssignRole == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_assignRole_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AssignRole(childComplexity, args["input"].(*entities.AssignRoleInput)), true
+
+	case "Mutation.createDepartment":
+		if e.complexity.Mutation.CreateDepartment == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createDepartment_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateDepartment(childComplexity, args["input"].(entities.CreateDepartmentInput)), true
+
 	case "Mutation.createEmployee":
 		if e.complexity.Mutation.CreateEmployee == nil {
 			break
@@ -137,6 +280,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateEmployee(childComplexity, args["input"].(entities.CreateEmployeeInput)), true
 
+	case "Mutation.createRole":
+		if e.complexity.Mutation.CreateRole == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createRole_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateRole(childComplexity, args["input"].(entities.CreateRoleInput)), true
+
 	case "Mutation.terminateEmployee":
 		if e.complexity.Mutation.TerminateEmployee == nil {
 			break
@@ -148,6 +303,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.TerminateEmployee(childComplexity, args["id"].(string)), true
+
+	case "Query.department":
+		if e.complexity.Query.Department == nil {
+			break
+		}
+
+		args, err := ec.field_Query_department_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Department(childComplexity, args["id"].(string)), true
+
+	case "Query.departments":
+		if e.complexity.Query.Departments == nil {
+			break
+		}
+
+		return e.complexity.Query.Departments(childComplexity), true
 
 	case "Query.employee":
 		if e.complexity.Query.Employee == nil {
@@ -167,6 +341,60 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Employees(childComplexity), true
+
+	case "Query.role":
+		if e.complexity.Query.Role == nil {
+			break
+		}
+
+		args, err := ec.field_Query_role_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Role(childComplexity, args["id"].(string)), true
+
+	case "Query.roles":
+		if e.complexity.Query.Roles == nil {
+			break
+		}
+
+		return e.complexity.Query.Roles(childComplexity), true
+
+	case "Remuneration.amount":
+		if e.complexity.Remuneration.Amount == nil {
+			break
+		}
+
+		return e.complexity.Remuneration.Amount(childComplexity), true
+
+	case "Remuneration.endDate":
+		if e.complexity.Remuneration.EndDate == nil {
+			break
+		}
+
+		return e.complexity.Remuneration.EndDate(childComplexity), true
+
+	case "Remuneration.startDate":
+		if e.complexity.Remuneration.StartDate == nil {
+			break
+		}
+
+		return e.complexity.Remuneration.StartDate(childComplexity), true
+
+	case "Remuneration.type":
+		if e.complexity.Remuneration.Type == nil {
+			break
+		}
+
+		return e.complexity.Remuneration.Type(childComplexity), true
+
+	case "Role.title":
+		if e.complexity.Role.Title == nil {
+			break
+		}
+
+		return e.complexity.Role.Title(childComplexity), true
 
 	}
 	return 0, false
@@ -231,31 +459,92 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var parsedSchema = gqlparser.MustLoadSchema(
 	&ast.Source{Name: "schema.graphql", Input: `scalar Date
-scalar Gender
 
+enum Gender {
+    MALE
+    FEMALE
+    UNDEFINED
+}
+
+"Employee contains data about a individual"
 type Employee {
     id: ID!
     firstName: String!
     lastName: String!
     dateOfBirth: Date!
-    Gender: Gender!
+    age: Int!
+    gender: Gender!
+    remuneration: Remuneration!
+    role: AssignedRole!
+    department: Department!
+}
+
+type Remuneration {
+    amount: Int!
+    type: RenumerationType!
+    startDate: Date!
+    endDate: Date
+}
+enum RenumerationType {
+    SALARY
+    WAGE
+}
+
+"The assignment of a role to an employee"
+type AssignedRole {
+    role: Role!
+    employee: Employee!
+    startDate: Date!
+    endDate: Date
+}
+
+type Role {
+    title: String!
+}
+
+type Department {
+    id: ID!
+    name: String!
+    manager: Employee!
 }
 
 input CreateEmployeeInput {
-    firstName: String! @constraint(name: "firstName", rules: ["min:2", "required"])
-    lastName: String! @constraint(name: "lastName", rules: ["min:2", "required"])
+    firstName: String! @constraint(name: "firstName", rules: ["min:2", "max:128", "required"])
+    lastName: String! @constraint(name: "lastName", rules: ["min:2", "max:128", "required"])
     dateOfBirth: Date! @constraint(name: "dateOfBirth", rules: ["date:yyyy/mm/dd"])
     Gender: Gender!
 }
 
+input CreateDepartmentInput {
+    name: String! @constraint(name: "name", rules: ["min:2", "max:128", "required"])
+    manager: ID!
+}
+
+input CreateRoleInput {
+    title: String! @constraint(name: "title", rules: ["min:2"])
+}
+
+input AssignRoleInput {
+    role: ID! @constraint(name: "role", rules: ["uuid"])
+    employees: [ID!]!
+    startDate: Date!
+}
+
 type Query {
-    employee(id: ID!): Employee
     employees: [Employee!]!
+    employee(id: ID!): Employee
+    departments: [Department!]!
+    department(id: ID!): Department
+    roles: [Role!]!
+    role(id: ID!): Role
 }
 
 type Mutation {
     createEmployee(input: CreateEmployeeInput!): Employee!
     terminateEmployee(id: ID!): Employee!
+    createDepartment(input: CreateDepartmentInput!): Department!
+    createRole(input: CreateRoleInput!): Role!
+    assignRole(input: AssignRoleInput): [AssignedRole!]!
 }
 
 # Directives
@@ -310,12 +599,54 @@ func (ec *executionContext) dir_isAuthenticated_args(ctx context.Context, rawArg
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_assignRole_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *entities.AssignRoleInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalOAssignRoleInput2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐAssignRoleInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createDepartment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 entities.CreateDepartmentInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalNCreateDepartmentInput2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐCreateDepartmentInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createEmployee_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 entities.CreateEmployeeInput
 	if tmp, ok := rawArgs["input"]; ok {
 		arg0, err = ec.unmarshalNCreateEmployeeInput2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐCreateEmployeeInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createRole_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 entities.CreateRoleInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalNCreateRoleInput2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐCreateRoleInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -352,7 +683,35 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_department_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_employee_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_role_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -401,6 +760,262 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AssignedRole_role(ctx context.Context, field graphql.CollectedField, obj *entities.AssignedRole) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "AssignedRole",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Role)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNRole2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssignedRole_employee(ctx context.Context, field graphql.CollectedField, obj *entities.AssignedRole) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "AssignedRole",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Employee, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Employee)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssignedRole_startDate(ctx context.Context, field graphql.CollectedField, obj *entities.AssignedRole) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "AssignedRole",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNDate2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _AssignedRole_endDate(ctx context.Context, field graphql.CollectedField, obj *entities.AssignedRole) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "AssignedRole",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EndDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalODate2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Department_id(ctx context.Context, field graphql.CollectedField, obj *entities.Department) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Department",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Department_name(ctx context.Context, field graphql.CollectedField, obj *entities.Department) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Department",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Department_manager(ctx context.Context, field graphql.CollectedField, obj *entities.Department) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Department",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Manager, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Employee)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _Employee_id(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
@@ -550,7 +1165,44 @@ func (ec *executionContext) _Employee_dateOfBirth(ctx context.Context, field gra
 	return ec.marshalNDate2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Employee_Gender(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
+func (ec *executionContext) _Employee_age(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Employee",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Age, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Employee_gender(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -581,10 +1233,121 @@ func (ec *executionContext) _Employee_Gender(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(entities.Gender)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNGender2string(ctx, field.Selections, res)
+	return ec.marshalNGender2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐGender(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Employee_remuneration(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Employee",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Remuneration, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Remuneration)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNRemuneration2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRemuneration(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Employee_role(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Employee",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.AssignedRole)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNAssignedRole2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐAssignedRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Employee_department(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Employee",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Department, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Department)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNDepartment2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐDepartment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createEmployee(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -675,6 +1438,175 @@ func (ec *executionContext) _Mutation_terminateEmployee(ctx context.Context, fie
 	return ec.marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createDepartment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createDepartment_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateDepartment(rctx, args["input"].(entities.CreateDepartmentInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Department)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNDepartment2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐDepartment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createRole(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createRole_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateRole(rctx, args["input"].(entities.CreateRoleInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Role)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNRole2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_assignRole(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_assignRole_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AssignRole(rctx, args["input"].(*entities.AssignRoleInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*entities.AssignedRole)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNAssignedRole2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐAssignedRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_employees(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Employees(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*entities.Employee)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_employee(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -716,7 +1648,7 @@ func (ec *executionContext) _Query_employee(ctx context.Context, field graphql.C
 	return ec.marshalOEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_employees(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_departments(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -735,7 +1667,7 @@ func (ec *executionContext) _Query_employees(ctx context.Context, field graphql.
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Employees(rctx)
+		return ec.resolvers.Query().Departments(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -747,10 +1679,129 @@ func (ec *executionContext) _Query_employees(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*entities.Employee)
+	res := resTmp.([]*entities.Department)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNEmployee2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx, field.Selections, res)
+	return ec.marshalNDepartment2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐDepartment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_department(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_department_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Department(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Department)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalODepartment2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐDepartment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_roles(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Roles(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*entities.Role)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNRole2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_role(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_role_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Role(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*entities.Role)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalORole2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -826,6 +1877,188 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Remuneration_amount(ctx context.Context, field graphql.CollectedField, obj *entities.Remuneration) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Remuneration",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Amount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Remuneration_type(ctx context.Context, field graphql.CollectedField, obj *entities.Remuneration) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Remuneration",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(entities.RenumerationType)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNRenumerationType2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRenumerationType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Remuneration_startDate(ctx context.Context, field graphql.CollectedField, obj *entities.Remuneration) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Remuneration",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNDate2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Remuneration_endDate(ctx context.Context, field graphql.CollectedField, obj *entities.Remuneration) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Remuneration",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EndDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalODate2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Role_title(ctx context.Context, field graphql.CollectedField, obj *entities.Role) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Role",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -1979,6 +3212,102 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputAssignRoleInput(ctx context.Context, obj interface{}) (entities.AssignRoleInput, error) {
+	var it entities.AssignRoleInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "role":
+			var err error
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNID2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				name, err := ec.unmarshalNString2string(ctx, "role")
+				if err != nil {
+					return nil, err
+				}
+				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"uuid"})
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Constraint == nil {
+					return nil, errors.New("directive constraint is not implemented")
+				}
+				return ec.directives.Constraint(ctx, obj, directive0, name, rules)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, err
+			}
+			if data, ok := tmp.(string); ok {
+				it.Role = data
+			} else {
+				return it, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+			}
+		case "employees":
+			var err error
+			it.Employees, err = ec.unmarshalNID2ᚕstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "startDate":
+			var err error
+			it.StartDate, err = ec.unmarshalNDate2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreateDepartmentInput(ctx context.Context, obj interface{}) (entities.CreateDepartmentInput, error) {
+	var it entities.CreateDepartmentInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				name, err := ec.unmarshalNString2string(ctx, "name")
+				if err != nil {
+					return nil, err
+				}
+				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2", "max:128", "required"})
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Constraint == nil {
+					return nil, errors.New("directive constraint is not implemented")
+				}
+				return ec.directives.Constraint(ctx, obj, directive0, name, rules)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, err
+			}
+			if data, ok := tmp.(string); ok {
+				it.Name = data
+			} else {
+				return it, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+			}
+		case "manager":
+			var err error
+			it.Manager, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Context, obj interface{}) (entities.CreateEmployeeInput, error) {
 	var it entities.CreateEmployeeInput
 	var asMap = obj.(map[string]interface{})
@@ -1993,7 +3322,7 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 				if err != nil {
 					return nil, err
 				}
-				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2", "required"})
+				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2", "max:128", "required"})
 				if err != nil {
 					return nil, err
 				}
@@ -2020,7 +3349,7 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 				if err != nil {
 					return nil, err
 				}
-				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2", "required"})
+				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2", "max:128", "required"})
 				if err != nil {
 					return nil, err
 				}
@@ -2068,9 +3397,48 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 			}
 		case "Gender":
 			var err error
-			it.Gender, err = ec.unmarshalNGender2string(ctx, v)
+			it.Gender, err = ec.unmarshalNGender2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐGender(ctx, v)
 			if err != nil {
 				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreateRoleInput(ctx context.Context, obj interface{}) (entities.CreateRoleInput, error) {
+	var it entities.CreateRoleInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "title":
+			var err error
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				name, err := ec.unmarshalNString2string(ctx, "title")
+				if err != nil {
+					return nil, err
+				}
+				rules, err := ec.unmarshalNString2ᚕstring(ctx, []interface{}{"min:2"})
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Constraint == nil {
+					return nil, errors.New("directive constraint is not implemented")
+				}
+				return ec.directives.Constraint(ctx, obj, directive0, name, rules)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, err
+			}
+			if data, ok := tmp.(string); ok {
+				it.Title = data
+			} else {
+				return it, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 			}
 		}
 	}
@@ -2085,6 +3453,82 @@ func (ec *executionContext) unmarshalInputCreateEmployeeInput(ctx context.Contex
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var assignedRoleImplementors = []string{"AssignedRole"}
+
+func (ec *executionContext) _AssignedRole(ctx context.Context, sel ast.SelectionSet, obj *entities.AssignedRole) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, assignedRoleImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AssignedRole")
+		case "role":
+			out.Values[i] = ec._AssignedRole_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "employee":
+			out.Values[i] = ec._AssignedRole_employee(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "startDate":
+			out.Values[i] = ec._AssignedRole_startDate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "endDate":
+			out.Values[i] = ec._AssignedRole_endDate(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var departmentImplementors = []string{"Department"}
+
+func (ec *executionContext) _Department(ctx context.Context, sel ast.SelectionSet, obj *entities.Department) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, departmentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Department")
+		case "id":
+			out.Values[i] = ec._Department_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Department_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "manager":
+			out.Values[i] = ec._Department_manager(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
 
 var employeeImplementors = []string{"Employee"}
 
@@ -2117,8 +3561,28 @@ func (ec *executionContext) _Employee(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "Gender":
-			out.Values[i] = ec._Employee_Gender(ctx, field, obj)
+		case "age":
+			out.Values[i] = ec._Employee_age(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "gender":
+			out.Values[i] = ec._Employee_gender(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "remuneration":
+			out.Values[i] = ec._Employee_remuneration(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "role":
+			out.Values[i] = ec._Employee_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "department":
+			out.Values[i] = ec._Employee_department(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2158,6 +3622,21 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createDepartment":
+			out.Values[i] = ec._Mutation_createDepartment(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createRole":
+			out.Values[i] = ec._Mutation_createRole(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "assignRole":
+			out.Values[i] = ec._Mutation_assignRole(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2184,17 +3663,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "employee":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_employee(ctx, field)
-				return res
-			})
 		case "employees":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -2209,10 +3677,137 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "employee":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_employee(ctx, field)
+				return res
+			})
+		case "departments":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_departments(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "department":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_department(ctx, field)
+				return res
+			})
+		case "roles":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_roles(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "role":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_role(ctx, field)
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var remunerationImplementors = []string{"Remuneration"}
+
+func (ec *executionContext) _Remuneration(ctx context.Context, sel ast.SelectionSet, obj *entities.Remuneration) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, remunerationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Remuneration")
+		case "amount":
+			out.Values[i] = ec._Remuneration_amount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "type":
+			out.Values[i] = ec._Remuneration_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "startDate":
+			out.Values[i] = ec._Remuneration_startDate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "endDate":
+			out.Values[i] = ec._Remuneration_endDate(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var roleImplementors = []string{"Role"}
+
+func (ec *executionContext) _Role(ctx context.Context, sel ast.SelectionSet, obj *entities.Role) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, roleImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Role")
+		case "title":
+			out.Values[i] = ec._Role_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2469,6 +4064,57 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNAssignedRole2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐAssignedRole(ctx context.Context, sel ast.SelectionSet, v entities.AssignedRole) graphql.Marshaler {
+	return ec._AssignedRole(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAssignedRole2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐAssignedRole(ctx context.Context, sel ast.SelectionSet, v []*entities.AssignedRole) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAssignedRole2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐAssignedRole(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNAssignedRole2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐAssignedRole(ctx context.Context, sel ast.SelectionSet, v *entities.AssignedRole) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._AssignedRole(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
 }
@@ -2483,8 +4129,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNCreateDepartmentInput2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐCreateDepartmentInput(ctx context.Context, v interface{}) (entities.CreateDepartmentInput, error) {
+	return ec.unmarshalInputCreateDepartmentInput(ctx, v)
+}
+
 func (ec *executionContext) unmarshalNCreateEmployeeInput2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐCreateEmployeeInput(ctx context.Context, v interface{}) (entities.CreateEmployeeInput, error) {
 	return ec.unmarshalInputCreateEmployeeInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalNCreateRoleInput2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐCreateRoleInput(ctx context.Context, v interface{}) (entities.CreateRoleInput, error) {
+	return ec.unmarshalInputCreateRoleInput(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNDate2string(ctx context.Context, v interface{}) (string, error) {
@@ -2499,6 +4153,57 @@ func (ec *executionContext) marshalNDate2string(ctx context.Context, sel ast.Sel
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNDepartment2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐDepartment(ctx context.Context, sel ast.SelectionSet, v entities.Department) graphql.Marshaler {
+	return ec._Department(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDepartment2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐDepartment(ctx context.Context, sel ast.SelectionSet, v []*entities.Department) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDepartment2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐDepartment(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNDepartment2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐDepartment(ctx context.Context, sel ast.SelectionSet, v *entities.Department) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Department(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNEmployee2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx context.Context, sel ast.SelectionSet, v entities.Employee) graphql.Marshaler {
@@ -2552,18 +4257,13 @@ func (ec *executionContext) marshalNEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑ
 	return ec._Employee(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNGender2string(ctx context.Context, v interface{}) (string, error) {
-	return graphql.UnmarshalString(v)
+func (ec *executionContext) unmarshalNGender2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐGender(ctx context.Context, v interface{}) (entities.Gender, error) {
+	var res entities.Gender
+	return res, res.UnmarshalGQL(v)
 }
 
-func (ec *executionContext) marshalNGender2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalString(v)
-	if res == graphql.Null {
-		if !ec.HasError(graphql.GetResolverContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
+func (ec *executionContext) marshalNGender2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐGender(ctx context.Context, sel ast.SelectionSet, v entities.Gender) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
@@ -2578,6 +4278,123 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNID2ᚕstring(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstring(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalInt(v)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) marshalNRemuneration2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRemuneration(ctx context.Context, sel ast.SelectionSet, v entities.Remuneration) graphql.Marshaler {
+	return ec._Remuneration(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRemuneration2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRemuneration(ctx context.Context, sel ast.SelectionSet, v *entities.Remuneration) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Remuneration(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNRenumerationType2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRenumerationType(ctx context.Context, v interface{}) (entities.RenumerationType, error) {
+	var res entities.RenumerationType
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalNRenumerationType2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRenumerationType(ctx context.Context, sel ast.SelectionSet, v entities.RenumerationType) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNRole2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRole(ctx context.Context, sel ast.SelectionSet, v entities.Role) graphql.Marshaler {
+	return ec._Role(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRole2ᚕᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRole(ctx context.Context, sel ast.SelectionSet, v []*entities.Role) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		rctx := &graphql.ResolverContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRole2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRole(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalNRole2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRole(ctx context.Context, sel ast.SelectionSet, v *entities.Role) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Role(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -2849,6 +4666,18 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) unmarshalOAssignRoleInput2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐAssignRoleInput(ctx context.Context, v interface{}) (entities.AssignRoleInput, error) {
+	return ec.unmarshalInputAssignRoleInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOAssignRoleInput2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐAssignRoleInput(ctx context.Context, v interface{}) (*entities.AssignRoleInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOAssignRoleInput2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐAssignRoleInput(ctx, v)
+	return &res, err
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
 }
@@ -2872,6 +4701,40 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
 }
 
+func (ec *executionContext) unmarshalODate2string(ctx context.Context, v interface{}) (string, error) {
+	return graphql.UnmarshalString(v)
+}
+
+func (ec *executionContext) marshalODate2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	return graphql.MarshalString(v)
+}
+
+func (ec *executionContext) unmarshalODate2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalODate2string(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalODate2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalODate2string(ctx, sel, *v)
+}
+
+func (ec *executionContext) marshalODepartment2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐDepartment(ctx context.Context, sel ast.SelectionSet, v entities.Department) graphql.Marshaler {
+	return ec._Department(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalODepartment2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐDepartment(ctx context.Context, sel ast.SelectionSet, v *entities.Department) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Department(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOEmployee2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐEmployee(ctx context.Context, sel ast.SelectionSet, v entities.Employee) graphql.Marshaler {
 	return ec._Employee(ctx, sel, &v)
 }
@@ -2881,6 +4744,17 @@ func (ec *executionContext) marshalOEmployee2ᚖgithubᚗcomᚋbenroweᚋdemoᚑ
 		return graphql.Null
 	}
 	return ec._Employee(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalORole2githubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRole(ctx context.Context, sel ast.SelectionSet, v entities.Role) graphql.Marshaler {
+	return ec._Role(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalORole2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRole(ctx context.Context, sel ast.SelectionSet, v *entities.Role) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Role(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
