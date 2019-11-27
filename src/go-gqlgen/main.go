@@ -62,9 +62,13 @@ func main() {
 func loadDirectives(d *gen.DirectiveRoot) {
 	d.Constraint = func(ctx context.Context, obj interface{}, next graphql.Resolver, name string, rules []string) (res interface{}, err error) {
 		// convert rules
-		if msg, ok := app.ValidateVal(obj, name, convertRules(rules)); !ok {
-			return nil, fmt.Errorf("invalid input: %s", msg)
-		}
+
+		log.Printf("obj: %+v, name: %s, rules: %+v", obj, name, rules)
+
+		//app.ValidateVal(obj, name, convertRules(rules))
+		//if !ok {
+		//	return nil, fmt.Errorf("invalid input: %s", msg)
+		//}
 		return next(ctx)
 	}
 }
