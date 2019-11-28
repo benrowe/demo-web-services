@@ -26,9 +26,11 @@ func (m mutationResolver) TerminateEmployee(ctx context.Context, id string) (*en
 }
 
 func (r *queryResolver) Employee(ctx context.Context, id string) (*entities.Employee, error) {
-	return &entities.Employee{
-		ID: id,
-	}, nil
+	model, err := models.FindEmployee(r.App.DB, id)
+	if err != nil {
+		return nil, err
+	}
+	return transformations.ModelToGqlEntityEmployee(model)
 }
 
 func (r *queryResolver) Employees(ctx context.Context) ([]*entities.Employee, error) {
