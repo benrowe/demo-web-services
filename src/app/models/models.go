@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+	"strconv"
 	"time"
 )
 
@@ -45,5 +46,21 @@ type Title struct {
 // Migrate the database to match the defined model structure
 func Migrate(db *gorm.DB) {
 	db.AutoMigrate(&Employee{}, &Department{}, &Salary{}, &Manager{}, &Title{})
+}
 
+func (e Employee) Age() int {
+	return time.Now().Year() - e.BirthDate.Year()
+}
+
+func FindEmployee(db *gorm.DB, id string) (*Employee, error) {
+	pk, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	var model Employee
+	err = db.First(&model, Employee{
+		Model: gorm.Model{ID: uint(pk)},
+	}).Error
+
+	return &model, err
 }
