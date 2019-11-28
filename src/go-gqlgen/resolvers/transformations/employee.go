@@ -26,7 +26,7 @@ func ConvertCreateEmployeeInputToEmployeeModel(i *entities.CreateEmployeeInput) 
 
 func ModelToGqlEntityEmployee(m *models.Employee) (*entities.Employee, error) {
 	return &entities.Employee{
-		//ID:          string(m.ID),
+		ID:          uint32ToStr(m.ID),
 		FirstName:   m.FirstName,
 		LastName:    m.LastName,
 		DateOfBirth: m.BirthDate.String(),
