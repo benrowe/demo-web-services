@@ -32,18 +32,18 @@ func (r *queryResolver) Employee(ctx context.Context, id string) (*entities.Empl
 }
 
 func (r *queryResolver) Employees(ctx context.Context) ([]*entities.Employee, error) {
-	var e []models.Employee
-	r.App.DB.Find(&e)
+	var models []models.Employee
+	r.App.DB.Find(&models)
 
-	var ee []*entities.Employee
+	var entities []*entities.Employee
 
-	for _, em := range e {
-		eaaa, err := transformations.ModelToGqlEntityEmployee(&em)
+	for _, model := range models {
+		entity, err := transformations.ModelToGqlEntityEmployee(&model)
 		if err != nil {
 			return nil, err
 		}
-		ee = append(ee, eaaa)
+		entities = append(entities, entity)
 	}
 
-	return ee, nil
+	return entities, nil
 }
