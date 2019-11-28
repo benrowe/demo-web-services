@@ -62,6 +62,7 @@ type ComplexityRoot struct {
 
 	Employee struct {
 		Age          func(childComplexity int) int
+		CurrentRole  func(childComplexity int) int
 		DateOfBirth  func(childComplexity int) int
 		Department   func(childComplexity int) int
 		FirstName    func(childComplexity int) int
@@ -69,7 +70,6 @@ type ComplexityRoot struct {
 		ID           func(childComplexity int) int
 		LastName     func(childComplexity int) int
 		Remuneration func(childComplexity int) int
-		Role         func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -188,6 +188,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Employee.Age(childComplexity), true
 
+	case "Employee.currentRole":
+		if e.complexity.Employee.CurrentRole == nil {
+			break
+		}
+
+		return e.complexity.Employee.CurrentRole(childComplexity), true
+
 	case "Employee.dateOfBirth":
 		if e.complexity.Employee.DateOfBirth == nil {
 			break
@@ -236,13 +243,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Employee.Remuneration(childComplexity), true
-
-	case "Employee.role":
-		if e.complexity.Employee.Role == nil {
-			break
-		}
-
-		return e.complexity.Employee.Role(childComplexity), true
 
 	case "Mutation.assignRole":
 		if e.complexity.Mutation.AssignRole == nil {
@@ -475,7 +475,7 @@ type Employee {
     age: Int!
     gender: Gender!
     remuneration: Remuneration!
-    role: AssignedRole!
+    currentRole: AssignedRole!
     department: Department!
 }
 
@@ -1276,7 +1276,7 @@ func (ec *executionContext) _Employee_remuneration(ctx context.Context, field gr
 	return ec.marshalNRemuneration2ᚖgithubᚗcomᚋbenroweᚋdemoᚑwebᚑservicesᚋsrcᚋgoᚑgqlgenᚋentitiesᚐRemuneration(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Employee_role(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
+func (ec *executionContext) _Employee_currentRole(ctx context.Context, field graphql.CollectedField, obj *entities.Employee) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1295,7 +1295,7 @@ func (ec *executionContext) _Employee_role(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Role, nil
+		return obj.CurrentRole, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3576,8 +3576,8 @@ func (ec *executionContext) _Employee(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "role":
-			out.Values[i] = ec._Employee_role(ctx, field, obj)
+		case "currentRole":
+			out.Values[i] = ec._Employee_currentRole(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

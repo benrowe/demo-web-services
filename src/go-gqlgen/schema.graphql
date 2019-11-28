@@ -15,7 +15,7 @@ type Employee {
     age: Int!
     gender: Gender!
     remuneration: Remuneration!
-    role: AssignedRole!
+    currentRole: AssignedRole!
     department: Department!
 }
 
