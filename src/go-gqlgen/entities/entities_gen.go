@@ -53,7 +53,7 @@ type Employee struct {
 	Age          int           `json:"age"`
 	Gender       Gender        `json:"gender"`
 	Remuneration *Remuneration `json:"remuneration"`
-	Role         *AssignedRole `json:"role"`
+	CurrentRole  *AssignedRole `json:"currentRole"`
 	Department   *Department   `json:"department"`
 }
 
