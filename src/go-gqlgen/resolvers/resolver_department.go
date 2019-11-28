@@ -6,10 +6,12 @@ import (
 )
 
 func (q queryResolver) Departments(ctx context.Context) ([]*entities.Department, error) {
+	panic("implement me")
 	return nil, nil
 }
 
 func (q queryResolver) Department(ctx context.Context, id string) (*entities.Department, error) {
+	panic("implement me")
 	return nil, nil
 }
 

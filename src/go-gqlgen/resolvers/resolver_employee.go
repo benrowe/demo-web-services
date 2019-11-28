@@ -21,6 +21,7 @@ func (m mutationResolver) CreateEmployee(ctx context.Context, input entities.Cre
 }
 
 func (m mutationResolver) TerminateEmployee(ctx context.Context, id string) (*entities.Employee, error) {
+	panic("implement me")
 	return nil, nil
 }
 
