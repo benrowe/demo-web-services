@@ -17,3 +17,15 @@ resolver:
   package: resolvers
 struct_tag: json
 autobind: []
+models:
+  Employee:
+    model: github.com/benrowe/demo-web-services/src/go-gqlgen/entities.Employee
+    fields:
+      currentRole:
+        resolver: true
+  Gender:
+    model: github.com/benrowe/demo-web-services/src/go-gqlgen/entities.Gender
+  Role:
+    model: github.com/benrowe/demo-web-services/src/go-gqlgen/entities.Role
+  Department:
+    model: github.com/benrowe/demo-web-services/src/go-gqlgen/entities.Department
