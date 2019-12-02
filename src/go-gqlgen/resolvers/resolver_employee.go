@@ -8,6 +8,22 @@ import (
 	"log"
 )
 
+type employeeResolver struct{ *Resolver }
+
+func (e employeeResolver) Remuneration(ctx context.Context, obj *entities.Employee) (*entities.Remuneration, error) {
+	return obj.Remuneration(), nil
+}
+
+func (e employeeResolver) Department(ctx context.Context, obj *entities.Employee) (*entities.Department, error) {
+	var department models.Department
+	e.App.DB.First(&department)
+	return transformations.ModelToGqlEntityDepartment(&department)
+}
+
+func (e employeeResolver) CurrentRole(ctx context.Context, obj *entities.Employee) (*entities.AssignedRole, error) {
+	return obj.CurrentRole(), nil
+}
+
 func (m mutationResolver) CreateEmployee(ctx context.Context, input entities.CreateEmployeeInput) (*entities.Employee, error) {
 	employee, err := transformations.ConvertCreateEmployeeInputToEmployeeModel(&input)
 	if err != nil {
