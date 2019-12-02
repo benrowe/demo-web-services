@@ -73,10 +73,12 @@ services:
   oauth-migrate:
     image: oryd/hydra:latest
     environment:
-      - DSN=mysql://root:password@tcp(database:3306)/mysql?max_conns=20&max_idle_conns=4
+      - DSN=mysql://root:password@tcp(database:3306)/oauth?max_conns=20&max_idle_conns=4
     command:
       migrate sql -e --yes
     restart: on-failure
+    depends_on:
+      - database
   oauth:
     image: oryd/hydra:latest
     ports:
