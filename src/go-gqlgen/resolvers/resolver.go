@@ -21,3 +21,7 @@ func (r *Resolver) Query() gen.QueryResolver {
 func (r *Resolver) Mutation() gen.MutationResolver {
 	return &mutationResolver{r}
 }
+
+func (r *Resolver) Employee() gen.EmployeeResolver {
+	return &employeeResolver{}
+}
