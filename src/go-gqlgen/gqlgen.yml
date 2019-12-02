@@ -23,6 +23,10 @@ models:
     fields:
       currentRole:
         resolver: true
+      department:
+        resolver: true
+      remuneration:
+        resolver: true
   Gender:
     model: github.com/benrowe/demo-web-services/src/go-gqlgen/entities.Gender
   Role:
