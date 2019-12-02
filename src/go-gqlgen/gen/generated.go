@@ -103,7 +103,9 @@ type ComplexityRoot struct {
 }
 
 type EmployeeResolver interface {
+	Remuneration(ctx context.Context, obj *entities.Employee) (*entities.Remuneration, error)
 	CurrentRole(ctx context.Context, obj *entities.Employee) (*entities.AssignedRole, error)
+	Department(ctx context.Context, obj *entities.Employee) (*entities.Department, error)
 }
 type MutationResolver interface {
 	CreateEmployee(ctx context.Context, input entities.CreateEmployeeInput) (*entities.Employee, error)
@@ -1256,13 +1258,13 @@ func (ec *executionContext) _Employee_remuneration(ctx context.Context, field gr
 		Object:   "Employee",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Remuneration, nil
+		return ec.resolvers.Employee().Remuneration(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1330,13 +1332,13 @@ func (ec *executionContext) _Employee_department(ctx context.Context, field grap
 		Object:   "Employee",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Department, nil
+		return ec.resolvers.Employee().Department(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3576,10 +3578,19 @@ func (ec *executionContext) _Employee(ctx context.Context, sel ast.SelectionSet,
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "remuneration":
-			out.Values[i] = ec._Employee_remuneration(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Employee_remuneration(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "currentRole":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -3595,10 +3606,19 @@ func (ec *executionContext) _Employee(ctx context.Context, sel ast.SelectionSet,
 				return res
 			})
 		case "department":
-			out.Values[i] = ec._Employee_department(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Employee_department(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
