@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"log"
+	"os"
 )
 
 type App struct {
@@ -18,6 +19,9 @@ func (db *DBConfig) dsn() string {
 // NewApp generates a newInstance instance of the core application container from the provided configuration
 func NewApp(c *Config) *App {
 	db, err := gorm.Open(c.DB.Dialect, c.DB.dsn())
+	db.LogMode(true)
+	db.SetLogger(log.New(os.Stdout, "\r\n", 0))
+
 	if err != nil {
 		log.Fatalf("unable to connect to database: %v", err)
 	}
