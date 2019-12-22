@@ -11,6 +11,8 @@ services:
       - 800:80
     depends_on:
       - database
+      - oauth
+      - consent
   go-gqlgen:
     build:
       context: ./src/go-gqlgen/docker
@@ -92,9 +94,9 @@ services:
       serve all --dangerous-force-http
     environment:
       - URLS_SELF_ISSUER=http://127.0.0.1:4444
-      - URLS_CONSENT=http://127.0.0.1:3000/consent
-      - URLS_LOGIN=http://127.0.0.1:3000/login
-      - URLS_LOGOUT=http://127.0.0.1:3000/logout
+      - URLS_CONSENT=http://127.0.0.1:800/auth/consent
+      - URLS_LOGIN=http://127.0.0.1:800/auth/login
+      - URLS_LOGOUT=http://127.0.0.1:800/auth/logout
       - DSN=mysql://root:password@tcp(database:3306)/oauth?max_conns=20&max_idle_conns=4
       - SECRETS_SYSTEM=youReallyNeedToChangeThis
       - OIDC_SUBJECT_TYPES_SUPPORTED=public,pairwise
