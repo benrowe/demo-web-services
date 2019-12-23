@@ -29,7 +29,7 @@ func main() {
 
 	a := app.NewApp(cfg)
 
-	models.Migrate(a.DB)
+	go models.Migrate(a.DB)
 
 	defer a.DB.Close()
 
